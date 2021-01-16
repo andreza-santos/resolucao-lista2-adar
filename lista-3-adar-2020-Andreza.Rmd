@@ -5,12 +5,17 @@ date: "2021-01-08"
 output: html_document
 ---
 
-
-
-
 ## Exercícios
 
-
+pacotes <- c(
+  "tidyverse",
+  "rio",
+  "dplyr",
+  "tidyr",
+  "data.table",
+  "writexl"
+)
+easypackages::libraries(pacotes)
 
 1. Importe os dados disponíveis em http://www.aos.wisc.edu/~dvimont/MModes/RealTime/AMM.txt. A estrutura esperada dos dados importados no R é mostrada abaixo.
 
@@ -32,10 +37,10 @@ download.file(
 amm_file
 
 nome_vars_amm <- scan(
-    amm_file,
-    what = "character",
-    skip = 0,
-    nmax = 4
+   amm_file,
+   what = "character",
+   skip = 0,
+   nmax = 4
 )
 nome_vars_amm
 
@@ -65,7 +70,8 @@ ensofcst_data <- readLines(ensofcst_url)
 ensofcst_file <- "previsoes-enos.txt"
 
 writeLines(text = ensofcst_data,
-           con = ensofcst_file)
+           con = ensofcst_file
+)
 ```
 
 
@@ -110,7 +116,8 @@ ensofcst <- readLines(ensofcst_file)
 
 
 ```{r}
-cab <- c("DJF", "JFM", "FMA", "MAM", "AMJ", "MJJ", "JJA", "JAS", "ASO", "tipo_modleo", "modelo")
+cab <- c("DJF", "JFM", "FMA", "MAM", "AMJ", "MJJ",
+         "JJA", "JAS", "ASO", "tipo_modleo", "modelo")
 
 skip_lin <- lin_ini + 2
 
@@ -127,8 +134,6 @@ prev_enos_jan2021 <- import(
 tail(prev_enos_jan2021)
 prev_enos_jan2021 <- prev_enos_jan2021[-25,]
 
-# as.numeric(unlist(prev_enos_jan2021))
-# lapply(prev_enos_jan2021, as.numeric)
 str(prev_enos_jan2021)
 tail(prev_enos_jan2021)
 ```
@@ -173,9 +178,9 @@ file.exists("previsoes-enos.xlsx")
 
 ```{r}
 previsoes_enos_xlsx <- import(
-  file = "previsoes-enos.xlsx",
-  col_names = TRUE,
-  skip = 0
+   file = "previsoes-enos.xlsx",
+   col_names = TRUE,
+   skip = 0
 )
 str(previsoes_enos_xlsx)
 ```
@@ -205,6 +210,7 @@ str(previsoes_enos_xlsx)
 ```{r}
 aao_url <- "https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/aao/monthly.aao.index.b79.current.ascii.table"
 aao_file <- tempfile(fileext = ".tsv")
+
 download.file(
    url = aao_url,
    destfile = aao_file
@@ -229,12 +235,12 @@ str(aao)
 ```{r}
 excel_file_url <- "https://www.dropbox.com/s/4hc7x9s8pmfz7gq/_SS_ANNN_CITY_NAME_pressao_inst_max_min_vento_velo_dir_raja_radiacao_precipitacao_horario.xls?raw=1"
 dest_file_excel <- file.path(
-  getwd(),
-  "Dados-INMET-SM.xls"
+   getwd(),
+   "Dados-INMET-SM.xls"
 )
 download.file(
-  url = excel_file_url,
-  destfile = dest_file_excel
+   url = excel_file_url,
+   destfile = dest_file_excel
 )
 ```
 
@@ -250,7 +256,8 @@ names(dados_inmet)
 str(dados_inmet)
 ```
 (i) Cada coluna representa os dados horários de uma determinada variável e cada linha contém os dados diários observados de cada variável por tempo. 
-(ii)
+(ii) 8
+(iii) Não, a variável `RADIACAO GLOBAL KJM` tem 13 observações diárias.
 
 
 
@@ -258,9 +265,9 @@ str(dados_inmet)
    
 ```{r}
 dados_inmet <- import(
-  file = "Dados-INMET-SM.xls",
-  col_names = FALSE,
-  skip = 11
+   file = "Dados-INMET-SM.xls",
+   col_names = FALSE,
+   skip = 11
 )
 str(dados_inmet)
 ```
@@ -339,12 +346,14 @@ names(dados_inmet) <- gsub(pattern = "p_hpa_", replacement = "p_hpa_", x = names
 6. a. Utilizando o R, faça o *download* [deste arquivo netCDF](https://www.dropbox.com/s/w3wp6iwxqex95ep/S_America_model_wtd_v2.nc?dl=1) com dados de profundidade do lençol freático para a América do Sul.
 
 ```{r}
+options(timeout=500)
+
 dados_nc_url <- "https://www.dropbox.com/s/w3wp6iwxqex95ep/S_America_model_wtd_v2.nc?dl=1"
 dest_file_nc <- "dados-plf-as.nc"
 
 download.file(
-  url = dados_nc_url,
-  destfile = dest_file_nc
+   url = dados_nc_url,
+   destfile = dest_file_nc
 )
 ```
 
@@ -354,18 +363,18 @@ download.file(
 ncin <- nc_open(filename = dest_file_nc)
 print(ncin)
 
-dname <- "wtd"
-dname <- nome_vars_nc[1]
-var_name <- ncatt_get(
-  nc = ncin,
-  varid = dname,
-  attname = "long_name"
+var_name <- names(ncin$var)
+
+var_name_ext <- ncatt_get(
+   nc = ncin,
+   varid = var_name,
+   attname = "long_name"
 )
 
-dunits <- ncatt_get(
-  nc = ncin,
-  varid = dname,
-  attname = "units"
+var_unidade <- ncatt_get(
+   nc = ncin,
+   varid = var_name,
+   attname = "units"
 )
 ```
 
@@ -377,20 +386,31 @@ wtd_as
 ```
 
    d. Converta os dados importados em um quadro de dados (*data frame*) incluindo as coordenadas das células do raster e ignorando as células sem informação (oceanos). 
-   
+```{r}
+dados_wtd_as <- as.data.frame(
+   x = wtd_as,
+   xy = TRUE,
+   na.rm = TRUE
+)
+str(dados_wtd_as)
 
+names(dados_wtd_as) <- gsub(pattern = "X", replacement = "", names(dados_wtd_as))
+```   
 
    e. Altere os nomes das colunas do quadro de dados para "wtd", "lon", "lat"
 
 ```{r}
-# sua resposta aqui
+dados_wtd_as <- rename(dados_wtd_as, wtd = WTD, lon = Lon, lat = Lat)
 ```
 
 
    f. Compare as dimensões do *quadro de dados* com as dimensões do objeto importado como raster. Por que o número de linhas do *quadro de dados* não corresponde ao número de células do raster? Comente sua resposta.
 
 ```{r}
-# sua resposta aqui
+dim(dados_wtd_as)
+dim(wtd_as)
+
+# Porque as células com dados sem informações foram removidas durante a conversão dos dados.
 ```
 
 - - -
@@ -398,43 +418,69 @@ wtd_as
 7. a. Importe da *web* diretamente para o R os dados do índice multivariado em tempo real da Oscilação de Madden-Julian disponível em http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt.
 
 ```{r}
-# sua resposta aqui
+mjo_link <- "http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt"
+browseURL(url = mjo_link)
+
+mjo <- import(
+  file = mjo_link,
+  format = "tsv",
+  skip = 2,
+  header = FALSE,
+  nrows = 70,
+  na.strings = "-999.9"
+)
+str(mjo)
+tail(mjo)
 ```
 
    b. Defina o nome das variáveis como:  year  month  day  RMM1  RMM2  phase  amplitude status. Tente obter os nomes das variáveis do próprio link para os dados (a releitura [desta seção](https://lhmet.github.io/adar-ebook/arquivos-texto.html#arquivos-texto-n%C3%A3o-estruturados) do livro e [deste apêndice](https://lhmet.github.io/adar-ebook/amostras-pequenas-de-dados.html) pode ajudar). Mostre os 10 primeiros valores da variável `RMM1`. 
 
 ```{r}
-# sua resposta aqui
+nome_vars_mjo <- scan(
+    mjo_link,
+    what = "character",
+    skip = 0,
+    nmax = 2
+)
+nome_vars_mjo
+
+names(mjo) <- nome_vars_mjo
 ```
 
    c. Escreva os dados importados em um arquivo excel no **formato `xls`** e nomeado `mjo.xls`. Dê uma olhada [nesta seção](https://lhmet.github.io/adar-ebook/arquivos-excel.html#export-xls) do livro.
     
 ```{r}
-# sua resposta aqui
+dados_xls <- write.xlsx(x = mjo, asTable = TRUE, file = "mjo.xls")
 ```
     
    d. Importe no R o arquivo excel nomeado `mjo.xls` e mostre qual a classe dos dados importados.
 
 ```{r}
-# sua resposta aqui
+mjo_excel <- import(
+  file = dados_xls,
+  col_names = TRUE,
+  skip = 0
+)
+class(mjo_excel)
 ```
 
    e. Mostre as primeiras e as últimas 10 linhas dos dados.
 
  ```{r}
-# sua resposta aqui
+str(mjo_excel)
+tail(mjo_excel)
 ``` 
     
    f. Qual o código para mostrar quantas linhas e colunas possui a tabela de dados.
 
 ```{r}
-# sua resposta aqui
+summary(mjo_excel)
 ```
 
    g. Interprete a saída da `glimpse()` do pacote **dplyr** aplicada aos dados importados. O resultado parece com o de alguma outra função que você já conhece, qual?
 
 ```{r}
-# sua resposta aqui
+glimpse(mjo_excel)
 ```
 
 
@@ -445,7 +491,33 @@ wtd_as
 
 
 ```{r}
-# sua resposta aqui
+soi_link <- "http://www.cpc.ncep.noaa.gov/data/indices/soi"
+
+cab_soi <- scan(
+   soi_link,
+   what = "character",
+   skip = 3,
+   nmax = 13
+)
+cab_soi
+
+soi <- import(
+  file = soi_link,
+  format = "fwf",
+  skip = 4,
+  header = FALSE,
+  widths = c(4, rep(6, 12)),
+  na.strings = "-999.9",
+  col.names = cab_soi
+)
+
+lin_ini <- grep(pattern = "DATA", soi)
+dados_soi <- soi[-c(1:lin_ini)]
+lin_fim <- grep(pattern = "2020", dados_limpos)
+dados_soi <- dados_soi[-1][1:lin_fim]
+
+str(soi)
+tail(soi)
 ```
 
 - - -
@@ -454,7 +526,22 @@ wtd_as
 [aqui](http://www.inmet.gov.br/webcdp/climatologia/normais2/imagens/normais/planilhas/1961-1990/Temperatura-Minima_NCB_1961-1990.xls). Mostre a estrutura dos dados e certifique-se de as colunas dos meses e ano são numéricas.
 
 ```{r}
-# sua resposta aqui
+clim_tempmin_url <- "http://www.inmet.gov.br/webcdp/climatologia/normais2/imagens/normais/planilhas/1961-1990/Temperatura-Minima_NCB_1961-1990.xls"
+dest_file_excel <- file.path(
+  getwd(),
+  "Climatologia-Temperatura-Mininma-1981-2010.xls"
+)
+download.file(
+  url = clim_tempmin_url,
+  destfile = dest_file_excel,
+)
+
+clim_temp_min <- import(
+  file = dest_file_excel,
+  col_names = TRUE,
+  skip = 15
+)
+head(inmet_estacoes)
 ```
 
 - - -
@@ -465,13 +552,32 @@ wtd_as
    a. Importe os dados para o R, converta-os para *data frame* e verifique o número de colunas e linhas resultantes. 
 
 ```{r}
-# sua resposta aqui
+browseURL("https://utexas.app.box.com/v/Xavier-etal-IJOC-DATA")
+prp_nc_url <- "https://utexas.app.box.com/v/Xavier-etal-IJOC-DATA/file/280458224572"
+dest_file_nc <- "prp-dia-br.nc"
+
+download.file(
+   url = prp_nc_url,
+   destfile = dest_file_nc
+)
+
+prp-imp <- brick(dest_file_nc)
+
+prp-dia-br <- as.data.frame(
+   x = prp-imp,
+   xy = TRUE,
+   na.rm = TRUE
+)
+
+ncol(prp-dia-br)
+nrow(prp-dia-br)
 ```
 
    b. Compare as dimensões do *quadro de dados* com as dimensões do objeto importado, o número de linhas e de colunas do *quadro de dados* correspondem a quais propriedades ou dimensões do objeto importado? Faça essa comparação usando os diferentes valores lógicos para os argumentos `na.rm` e `xy`.
 
 ```{r}
-# sua resposta aqui
+dim(prp-imp)
+dim(prp-dia-br)
 ```
 
 
