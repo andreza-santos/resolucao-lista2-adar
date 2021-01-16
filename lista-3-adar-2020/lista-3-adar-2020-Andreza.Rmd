@@ -407,8 +407,8 @@ dados_wtd_as <- rename(dados_wtd_as, wtd = WTD, lon = Lon, lat = Lat)
    f. Compare as dimensões do *quadro de dados* com as dimensões do objeto importado como raster. Por que o número de linhas do *quadro de dados* não corresponde ao número de células do raster? Comente sua resposta.
 
 ```{r}
-dim(dados_wtd_as)
-dim(wtd_as)
+summary(dados_wtd_as)
+summary(wtd_as)
 
 # Porque as células com dados sem informações foram removidas durante a conversão dos dados.
 ```
@@ -466,15 +466,16 @@ class(mjo_excel)
 
    e. Mostre as primeiras e as últimas 10 linhas dos dados.
 
- ```{r}
-str(mjo_excel)
+```{r}
+head(mjo_excel)
 tail(mjo_excel)
 ``` 
     
    f. Qual o código para mostrar quantas linhas e colunas possui a tabela de dados.
 
 ```{r}
-summary(mjo_excel)
+nrow(mjo_excel)
+ncol(mjo_excel)
 ```
 
    g. Interprete a saída da `glimpse()` do pacote **dplyr** aplicada aos dados importados. O resultado parece com o de alguma outra função que você já conhece, qual?
