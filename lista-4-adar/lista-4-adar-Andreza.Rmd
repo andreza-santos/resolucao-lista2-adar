@@ -12,30 +12,19 @@ uma com exercícios tidyr e outra com dplyr
 
 
 
-
-
 ## Pré-requisitos
 
 **Pacotes necessários**
+```{r include=FALSE}
 pacotes <- c(
   "tidyverse",
-  "openair",
-  "lubridate",
-  "scales",
-  "rio",
-  "knitr",
-  "easypackages",
-  "rio",
-  "readr",
-  "writexl",
-  "dplyr",
-  "microbenchmark",
-  "openxlsx"
+  "dplyr"
 )
 easypackages::libraries(pacotes)
+```
 
 **Dados**
-```{r, eval=FALSE}
+```{r echo=FALSE}
 arq_temp <- tempfile(fileext = ".RData")
 download.file(
   "https://github.com/lhmet/adar-ufsm/blob/master/data/dados-lista-exerc4-cap9.RData?raw=true",
@@ -63,26 +52,20 @@ $ year <int> 1951, 1951, 1951, 1951, 1951, 1951, 19...
 $ mes  <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,...
 $ soi  <dbl> 1.5, 0.9, -0.1, -0.3, -0.7, 0.2, -1.0,...
 ```
-```{r}
-soi_arrumado <- pivot_longer(data = soi, 
-             cols = -(YEAR),
-             names_to = "mes",
-             values_to = "soi")
+```{r include=FALSE}
+soi_tbl <- as_tibble(soi) %>%
+  pivot_longer(
+    .,
+    cols = -(YEAR),
+    names_to = "mes",
+    values_to = "soi"
+  )
+names(soi_tbl) <- tolower(names(soi_tbl))
 
-unique(soi_arrumado$YEAR)
 
-soi_arrumado <- rename(
-  .data = soi_arrumado,
-  "year" = YEAR
-)
-(soi_arrumado)
-
-soi_arrumado <- soi_arrumado %>% mutate_if(is.character, as.integer)
-
-glimpse(soi_arrumado)
+soi_tbl <- soi_tbl %>% mutate_if(is.character, as.integer)
+glimpse(soi_tbl)
 ```
-
-
 
 - - -
 
@@ -101,28 +84,55 @@ $ date <date> 2010-01-01, 2010-01-02, 2010-01-03, 2010-01-04, 2010-01...
 $ prec <dbl> 0.0000000, 0.0000000, 0.0000000, 0.4484863, 2.3515625, 4...
 ```
 
+```{r include=FALSE}
+prec_dia <- as_tibble(precd_ncdf) %>%
+  pivot_longer(
+    .,
+    cols = -(x:y),
+    names_to = "date",
+    values_to = "prec"
+  )
 
+prec_dia <- prec_dia %>% mutate(., date = gsub(pattern = "X", replacement = "", x = prec_dia$date))
+prec_dia$date <- as.Date(x = prec_dia$date,
+                         format = "%Y.%m.%d"
+)
 
-
-
-
-
+glimpse(prec_dia)
+```
 
 - - -
 
 3. Coloque os dados de poluição (**`tibble`** `poluentes`) no formato \"arrumado\".
 
-```{r}
-dpoluentes <- poluentes
-as_tibble(dpoluentes)
+```{r include=FALSE}
+poluentes_tbl <- as_tibble(poluentes)
+glimpse(poluentes_tbl)
 
-glimpse(dpoluentes)
+# poluentes_arrumado <- pivot_wider(poluentes_tbl,
+#     names_from = poluente,
+#     values_from = duracao
+#   )
+# glimpse(poluentes_arrumado)
 ```
-
 
 - - -
 
 4. a. Coloque os dados meteorológicos diários da estação meteorológica de Santa Maria no formato arrumado. 
+```{r include=FALSE}
+dados_sm_tbl <- pivot_longer(
+  dados_sm,
+  cols = -(id:year),
+  names_to = "day",
+  values_to = "valor"
+) %>%
+  pivot_wider(.,
+              names_from = element,
+              values_from = valor
+  )
+
+glimpse(dados_sm_tbl)
+```
 
 
 ```
@@ -161,15 +171,34 @@ $ day   <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,...
 $ tmax  <dbl> 32.6, 33.4, 24.8, 29.4, 27.0, 24.4, 29.6, 29.4...
 $ tmin  <dbl> 17.9, 21.4, 21.6, 23.4, 23.2, 21.8, 18.0, 19.4...
 ```
+```{r include=FALSE}
+dados_sm_ord <- dados_sm_tbl %>%
+  select(id, year, month, day, everything())
+
+dados_temp_arrumado <- dados_sm_ord %>%
+  mutate(
+    .,
+    day = gsub(pattern = "d",
+               replacement = "",
+               x = dados_sm_ord$day)
+  )
+dados_temp_arrumado$day <- as.integer(dados_temp_arrumado$day)
+
+glimpse(dados_temp_arrumado)
+```
 
 
 
    c. Acrescente uma nova variável `tmed` aos dados de temperatura diária arrumados, obtida da média diária da `tmax` e `tmin`.
 
-
-
-
-
+```{r include=FALSE}
+nova_col_dados_sm <- dados_temp_arrumado %>%
+  mutate(
+    .,
+    tmed = (dados_temp_arrumado$tmax + dados_temp_arrumado$tmin) / 2
+  )
+(nova_col_dados_sm %>% head(n =3))
+```
 
 
 - - -
@@ -181,26 +210,48 @@ $ tmin  <dbl> 17.9, 21.4, 21.6, 23.4, 23.2, 21.8, 18.0, 19.4...
 
    a. renomeie as as colunas `year`, `month` e `day`para `ano`, `mes` e `dia`, respectivamente.
 
-```{r}
-names(dados_sm_modif) <- c("id", "ano", "mes", "dia", "tmax", "tmin", "tmed")
+```{r include=FALSE}
+dados_sm_modif <- nova_col_dados_sm %>%
+  rename(
+    .,
+    "ano" = year,
+    "mes" = month,
+    "dia" = day)
+(dados_sm_modif %>% head(n =3))
 ```
 
 
    b. junte as colunas `ano`, `mes` e `dia` em uma única coluna denominada `data` de forma que a classe dessa nova váriavel seja `date`.
 
-```{r}
-dados_sm_modif %>% unite(date, ano, mes, dia)
+```{r include=FALSE}
+unir_col_dados_sm <- dados_sm_modif %>%
+  unite(
+    .,
+    col = data, ano, mes, dia,
+    sep = "-")
+unir_col_dados_sm$data <- as.Date(unir_col_dados_sm$data)
+(unir_col_dados_sm %>% head(n =3))
 ```
 
 
    c. Filtre os dados obtidos em **(b)** de forma a descobrir as datas em que as observações de `tmax` ou `tmin` são faltantes. Mostre o **`tibble`** filtrado com as datas e explique o porquê de seus valores. *DICA: quantas observações são esperadas por ano?*. 
 
-```{r}
-dados_sm_modif <- dados_sm_modif %>% filter(date == "NA")
+```{r include=FALSE}
+dados_sm_faltantes <- unir_col_dados_sm %>%
+  filter(
+    .,
+    is.na(unir_col_dados_sm$data)
+  ) 
 
+unir_col_dados_sm %>%
+  slice(
+    .,
+    n()
+  )
+tail(unir_col_dados_sm)
 ```
 
-
+Os dados são faltantes porque cada mês foi agrupado para receber 31 informações, de 31, mas o número de dias muda de acordo com o mês, assim, os dados para aqueles meses que têm menos de 31 dias são preenchidos com `NA`.
 
 
 - - -
@@ -226,6 +277,35 @@ $ tmax <dbl> 22.1, 21.0, 26.4, 27.0, 26.0, 25.0, 29.4, 29.5, 25.7, 26.3, 28.4, 2
 $ tmin <dbl> 16.0, 13.5, 18.2, 24.1, 19.0, 13.7, 16.3, 22.3, 21.0, 14.1, 17.2, 26.0, 23.0, ...
 ```
 
+```{r}
+dados_est_sup <- as_tibble(dados_zorra) %>%
+  pivot_longer(
+    .,
+    cols = -(date),
+    names_to = "variavel_hora",
+    values_to = "medida"
+  )
+dados_est_sup$variavel_hora <- str_replace_all(string = dados_est_sup$variavel_hora, pattern = "[:punct:]", "_")
+dados_est_sup <- dados_est_sup %>%
+  separate(
+  .,
+  col = variavel_hora,
+  sep = "_",
+  into = c("tmax", "hora")
+)
+dados_est_sup$hora <- as.numeric(dados_est_sup$hora)
+# data_dados_est_sup <- unite(
+#   data = dados_est_sup,
+#   col = date,
+#   date, hora,
+#   sep = " "
+# )
+# dados_est_sup$date <- as.POSIXct(dados_est_sup$date,
+#                                       tz = ""
+#                                       )
+
+glimpse()
+```
 
 
 
@@ -251,6 +331,22 @@ $ lon      <dbl> -87.81005, -87.81005, -88.27303
 $ poluente <chr> "ozone", "so2", "ozone"
 $ duracao  <chr> "1h", "1h", "8h"
 ```
+```{r include=FALSE}
+poluentes <- poluentes %>%
+  rename(
+    .,
+    "id" = estacao
+  )
+
+dados_poluicao <- inner_join(
+  x = estacoes,
+  y = poluentes,
+  by = "id"
+)
+
+dados_poluicao
+```
+
 
 - - -
 
@@ -258,16 +354,39 @@ $ duracao  <chr> "1h", "1h", "8h"
 
   a. A tabela resultante contenha todas as datas compreendidas pelas duas tabelas (e em ordem cronológica) e as observações de umidade do solo (`theta`) sejam preenchidas com `NA`. 
 
-
-
-
-
-
-
+```{r include=FALSE}
+combinar_tabelas <- full_join(
+  x = datas_obs, 
+  y = datas_comp,
+  by = "date")
+dados_umid_solo <- combinar_tabelas[
+  order(
+    as.Date(
+      combinar_tabelas$date,
+      format = "%Y-%m/%d")
+    ),
+  ]
+glimpse(dados_umid_solo)
+```
 
 
   b. a tabela resultante contenha exatamente as datas da tabela `data_comp` (em ordem cronológica) e as observações de umidade do solo (`theta`) sejam preenchidas com `NA`.
   
+```{r}
+data_comp <- right_join(
+  x = datas_obs, 
+  y = datas_comp,
+  by = "date",
+  )
+dados_data_comp <- data_comp[
+  order(
+    as.Date(
+      data_comp$date,
+      format = "%Y-%m/%d")
+    ),
+  ]
+glimpse(dados_data_comp)
+```
 
 
 
@@ -276,10 +395,25 @@ $ duracao  <chr> "1h", "1h", "8h"
 
 9. Utilizando os dados horários de estações meteorológicas automáticas (EMA) do RS (`dados_rs_08_16`), determine a data inicial, final e o período de dados (em anos) de cada estação (identificada pela variável `site`).
 
+```{r include=FALSE}
+# inicio <- dados_rs_08_16[1,]
+# fim <- dados_rs_08_16 %>%
+#   slice(
+#     .,
+#     n()
+#   )
 
+dados_em_anos <- dados_rs_08_16 %>%
+  group_by(
+    .,
+    site) %>%
+  summarise(
+    .,
+    nobs = n() / 8760
+  )
 
-
-
+# periodo_dados_ema
+```
 
 
 
@@ -295,6 +429,9 @@ $ duracao  <chr> "1h", "1h", "8h"
 
 11. Com o resultado da questão anterior, adicione uma variável indicativa da porcentagem média de observações válidas de todas variáveis. Ordene esta tabela em ordem decrescente da disponibilidade média de observações. 
   
+```{r}
+
+```
 
 
 
