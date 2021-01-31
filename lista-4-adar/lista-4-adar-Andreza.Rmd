@@ -568,27 +568,6 @@ dados_temp_rs$hour <- lubridate::hour(dados_temp_rs$hour)
 dados_temp_sm <- dados_temp_rs %>%
   filter(site == "A803")
 
-# tmed_ema_sm <- dados_temp_sm %>%
-#   # group_by(hour) %>%
-#   mutate(
-#     .,
-#     tair_med = mean(tair, na.rm = TRUE),
-#     total_obs = n()
-#     ) %>%
-#   filter(!is.na(tair)) %>%
-#   mutate(
-#     .,
-#     obs_val = n(),
-#     tair_disp = (obs_val / total_obs)
-#   )
-# 
-# dados_ema_sm <- tmed_ema_sm %>%
-#   group_by(hour) %>%
-#   summarise(
-#     .,
-#     tair_med,
-#     tair_disp
-#   )
 total_obs <- pull(dados_temp_sm %>% count(hour))
 tmed_ema_sm <- dados_temp_sm %>%
   filter(!is.na(tair)) %>%
@@ -599,13 +578,8 @@ tmed_ema_sm <- dados_temp_sm %>%
     obs_val = n() / total_obs[1]
     )
     
-
-glimpse(dados_ema_sm)
+glimpse(tmed_ema_sm)
 ```
-
-
-
-
 
 
 - - -
@@ -614,10 +588,11 @@ glimpse(dados_ema_sm)
 
 > Dica: para obter o dia a partir da data e hora (coluna `date` do tipo `POSIXct`) use `lubridate::floor_date(date, unit = "day")`.
 
+```{r}
+dados_temp_sm
 
 
-
-
+```
 
 
 - - -
