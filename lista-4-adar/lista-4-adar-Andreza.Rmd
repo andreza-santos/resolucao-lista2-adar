@@ -588,10 +588,71 @@ glimpse(tmed_ema_sm)
 
 > Dica: para obter o dia a partir da data e hora (coluna `date` do tipo `POSIXct`) use `lubridate::floor_date(date, unit = "day")`.
 
+a.
+```{r include=FALSE}
+dados_h_temp_sm <- full_join(
+  info_emas_rs_08_16,
+  dados_rs_08_16,
+  by = "site"
+) %>%
+  select(
+    .,
+    site,
+    name,
+    date,
+    tair
+  ) %>%
+  filter(site == "A803")
+info_ema_sm <- dados_h_temp_sm %>%
+  rename(
+    .,
+    "dia" = date
+  ) 
+info_ema_sm$dia <- lubridate::floor_date(info_ema_sm$dia, unit = "day")
+
+datas_completas_ema_sm <- info_ema_sm %>%
+  group_by(dia) %>%
+  filter(!is.na(tair)) %>%
+  summarise(
+    dias = (length(dia) == 24),
+    tmin = min(tair)
+    ) %>%
+  filter(dias == TRUE)
+# %>%
+#   select(
+#     .,
+#     dia
+#     )
+
+nrow(info_ema_sm)
+glimpse(datas_completas_ema_sm)
+glimpse(tail(datas_completas_ema_sm))
+```
+
+b.
 ```{r}
-dados_temp_sm
+dados_h_temp_sm
+
+temp_min_ema_sm <- dados_h_temp_sm %>%
+  group_by(date) %>%
+  # filter(!is.na(tair)) %>%
+  summarise(
+    tmin = min(tair)
+    ) %>%
+  select(
+    .,
+    dia
+    )
 
 
+x <- full_join(
+  datas_completas_ema_sm,
+  dados_rs_08_16,
+  by = "site"
+)
+
+
+freq_htmin
 ```
 
 
@@ -615,11 +676,6 @@ dados_temp_sm
 #   tmax_abs <dbl>
 ```
 
+```{r}
 
-
-
-
-
-
-
-
+```
