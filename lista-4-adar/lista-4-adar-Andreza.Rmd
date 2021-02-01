@@ -103,11 +103,11 @@ prec_dia <- prec_dia %>%
       pattern = "X",
       replacement = "",
       x = prec_dia$date
-      )
     )
+  )
 prec_dia$date <- as.Date(x = prec_dia$date,
                          format = "%Y.%m.%d"
-                         )
+)
 
 glimpse(prec_dia)
 ```
@@ -190,12 +190,12 @@ dados_sm_ord <- dados_sm_tbl %>%
   select(id, year, month, day, everything())
 
 dados_temp_arrumado <- mutate(
-    dados_sm_ord,
-    day = gsub(pattern = "d",
-               replacement = "",
-               x = dados_sm_ord$day
-               )
-    )
+  dados_sm_ord,
+  day = gsub(pattern = "d",
+             replacement = "",
+             x = dados_sm_ord$day
+  )
+)
 dados_temp_arrumado$day <- as.integer(dados_temp_arrumado$day)
 
 glimpse(dados_temp_arrumado)
@@ -207,9 +207,9 @@ glimpse(dados_temp_arrumado)
 
 ```{r include=FALSE}
 nova_col_dados_sm <- mutate(
-    dados_temp_arrumado,
-    tmed = (dados_temp_arrumado$tmax + dados_temp_arrumado$tmin) / 2
-  )
+  dados_temp_arrumado,
+  tmed = (dados_temp_arrumado$tmax + dados_temp_arrumado$tmin) / 2
+)
 (head(nova_col_dados_sm, n =3))
 ```
 
@@ -225,10 +225,10 @@ nova_col_dados_sm <- mutate(
 
 ```{r include=FALSE}
 dados_sm_modif <- rename(
-    nova_col_dados_sm,
-    "ano" = year,
-    "mes" = month,
-    "dia" = day)
+  nova_col_dados_sm,
+  "ano" = year,
+  "mes" = month,
+  "dia" = day)
 (head(dados_sm_modif, n =3))
 ```
 
@@ -237,9 +237,9 @@ dados_sm_modif <- rename(
 
 ```{r include=FALSE}
 unir_col_dados_sm <- unite(
-    dados_sm_modif,
-    col = data, ano, mes, dia,
-    sep = "-")
+  dados_sm_modif,
+  col = data, ano, mes, dia,
+  sep = "-")
 unir_col_dados_sm$data <- as.Date(unir_col_dados_sm$data)
 (head(unir_col_dados_sm, n =3))
 ```
@@ -256,9 +256,9 @@ summary(unir_col_dados_sm)
 
 # A função filtra onde as observações são faltantes, mas as datas também são faltantes
 dados_sm_faltantes <-  filter(
-    unir_col_dados_sm,
-    is.na(unir_col_dados_sm$tmax)
-  )
+  unir_col_dados_sm,
+  is.na(unir_col_dados_sm$tmax)
+)
 dados_sm_faltantes
 
 # Linhas onde tmax == NA
@@ -268,9 +268,9 @@ linhas_tmax_faltantes
 
 # Visualizando linhas antes e depois das linhas com NA, encontradas na função anterior
 slice(
-    unir_col_dados_sm,
-    c(58:64, 122:126)
-  )
+  unir_col_dados_sm,
+  c(58:64, 122:126)
+)
 
 # Visualizando ultimas linhas  
 #   slice(
@@ -307,7 +307,7 @@ $ tmax <dbl> 22.1, 21.0, 26.4, 27.0, 26.0, 25.0, 29.4, 29.5, 25.7, 26.3, 28.4, 2
 $ tmin <dbl> 16.0, 13.5, 18.2, 24.1, 19.0, 13.7, 16.3, 22.3, 21.0, 14.1, 17.2, 26.0, 23.0, ...
 ```
 
-```{r}
+```{r include=FALSE}
 # Ajuste date
 head(dados_zorra, n = 3)
 dados_est_sup <- as_tibble(dados_zorra) %>%
@@ -320,19 +320,19 @@ dados_est_sup <- as_tibble(dados_zorra) %>%
 dados_est_sup$variavel_hora <- str_replace_all(string = dados_est_sup$variavel_hora, pattern = "[:punct:]", "_")
 dados_est_sup <- dados_est_sup %>%
   separate(
-  .,
-  col = variavel_hora,
-  sep = "_",
-  into = c("temp", "hora")
-)
+    .,
+    col = variavel_hora,
+    sep = "_",
+    into = c("temp", "hora")
+  )
 
 ajuste_hora <- dados_est_sup %>%
   mutate(
     hora = recode(hora,
-      "0" = "00:00:00",
-      "600" = "06:00:00",
-      "1200" = "12:00:00",
-      "1800" = "18:00:00"
+                  "0" = "00:00:00",
+                  "600" = "06:00:00",
+                  "1200" = "12:00:00",
+                  "1800" = "18:00:00"
     )
   )
 data_dados_est_sup <- unite(
@@ -340,23 +340,20 @@ data_dados_est_sup <- unite(
   col = date,
   date, hora,
   sep = " "
-)
-# data_dados_est_sup$date <- as.Date(as.POSIXct(data_dados_est_sup$date, origin = "01-01-2010", tz = "UTC"))
-# data_dados_est_sup$date <- as.Date(as.POSIXct(data_dados_est_sup$date, origin = "01-01-2010", tz = "UTC", format = "%tc"))
-# strptime(dados_h_temp_sm$date, "%Y-%m-%d %H:%M:%S")
+) %>%
+  mutate(
+    .,
+    date = strptime(data_dados_est_sup$date, "%d-%m-%Y %H:%M:%S")
+  )
 
 # Ajuste temperatura
 pivot_dados_est_sup <- pivot_wider(
   data = data_dados_est_sup, 
   names_from = temp, 
   values_from = medida
-  )
+)
 glimpse(pivot_dados_est_sup)
 ```
-
-
-
-
 
 
 - - -
@@ -411,8 +408,8 @@ dados_umid_solo <- combinar_tabelas[
     as.Date(
       combinar_tabelas$date,
       format = "%Y-%m/%d")
-    ),
-  ]
+  ),
+]
 glimpse(dados_umid_solo)
 ```
 
@@ -424,14 +421,14 @@ data_comp <- right_join(
   x = datas_obs, 
   y = datas_comp,
   by = "date",
-  )
+)
 dados_data_comp <- data_comp[
   order(
     as.Date(
       data_comp$date,
       format = "%Y-%m/%d")
-    ),
-  ]
+  ),
+]
 glimpse(dados_data_comp)
 ```
 
@@ -446,14 +443,14 @@ glimpse(dados_data_comp)
 str(dados_rs_08_16)
 
 periodo_dados_ema <- group_by(
-    dados_rs_08_16,
-    site) %>%
+  dados_rs_08_16,
+  site) %>%
   summarise(
     .,
     inicio = date[1],
     fim = last(dados_rs_08_16$date),
     period = n() / 8760
-) %>%
+  ) %>%
   arrange(., desc(site))
 glimpse(periodo_dados_ema)
 ```
@@ -546,9 +543,6 @@ glimpse(med_dados_validos_ema)
 ```
 
 
-
-
-
 - - -
 
 12. Para a EMA de Santa Maria (ver `info_emas_rs_08_16`) obtenha o ciclo diurno médio da temperatura do ar e a porcentagem de dados válidos usados para compor a `tair` média de cada hora. 
@@ -586,8 +580,8 @@ tmed_ema_sm <- dados_temp_sm %>%
     .,
     tair_med = mean(tair),
     obs_val = n() / total_obs[1]
-    )
-    
+  )
+
 glimpse(tmed_ema_sm)
 ```
 
@@ -625,12 +619,12 @@ datas_completas_ema_sm <- info_ema_sm %>%
   filter(!is.na(tair)) %>%
   summarise(
     dias = (length(dia) == 24)
-    ) %>%
+  ) %>%
   filter(dias == TRUE) %>%
   select(
     .,
     dia
-    )
+  )
 
 nrow(info_ema_sm)
 glimpse(datas_completas_ema_sm)
@@ -641,10 +635,10 @@ b.
 ```{r include=FALSE}
 separar_date_ema_sm <- dados_h_temp_sm %>%
   separate(
-  .,
-  col = date,
-  sep = " ",
-  into = c("date", "hour")
+    .,
+    col = date,
+    sep = " ",
+    into = c("date", "hour")
   )
 
 temp_min_ema_sm <- separar_date_ema_sm %>%
@@ -652,7 +646,7 @@ temp_min_ema_sm <- separar_date_ema_sm %>%
   filter(!is.na(tair)) %>%
   mutate(
     completos = (length(hour) == 24)
-    ) %>%
+  ) %>%
   filter(completos == TRUE) %>%
   select(
     .,
@@ -660,14 +654,14 @@ temp_min_ema_sm <- separar_date_ema_sm %>%
   ) %>%
   slice(.,
         which.min(tair)
-        )
+  )
 temp_min_ema_sm$hour <- as.difftime(
   temp_min_ema_sm$hour,
   units = "hours") %>%
   gsub(
     pattern = " hours",
     replacement = ""
-    )
+  )
 
 freq_htmin <- temp_min_ema_sm %>%
   arrange(hour) %>%
@@ -679,7 +673,7 @@ freq_htmin <- temp_min_ema_sm %>%
   rename(
     .,
     "h_tmin" = hour
-    )
+  )
 freq_htmin$h_tmin <- as.integer(freq_htmin$h_tmin)
 
 glimpse(freq_htmin)
@@ -712,6 +706,49 @@ glimpse(freq_ocorre_htmin)
 #   tmax_abs <dbl>
 ```
 
-```{r}
+```{r include=FALSE}
+recordes_temp_sm <- recordes_temp %>%
+  filter(site == "83936") %>%
+  rename(.,
+         "mes" = month,
+         "site_emc" = site
+  )
+temp_ema_sm <- info_ema_sm %>%
+  group_by(
+    .,
+    dia
+  ) %>%
+  filter(!is.na(tair)) %>%
+  # mutate(
+  summarise(
+    .,
+    tmax = max(tair),
+    tmin = min(tair),
+    completos = (length(dia) == 24),
+  ) %>%
+  filter(completos == TRUE) %>%
+  select(., -(completos))
+temp_ema_sm <- temp_ema_sm %>%
+  mutate(
+    .,
+    mes = lubridate::month(temp_ema_sm$dia)
+  )
 
+casos_suspeitos <- inner_join(
+  temp_ema_sm,
+  recordes_temp_sm,
+  by = "mes") %>%
+  slice(
+    .,
+    which(
+      tmax > tmax_abs | tmin < tmin_abs
+    )
+  ) %>%
+  mutate(
+    site_ema = "A803",
+    nobs = n()
+  ) %>%
+  select(site_ema, dia, tmax, tmin, nobs, everything())
+
+glimpse(casos_suspeitos)
 ```
