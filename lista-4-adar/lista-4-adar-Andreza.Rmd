@@ -96,10 +96,18 @@ prec_dia <- as_tibble(precd_ncdf) %>%
     values_to = "prec"
   )
 
-prec_dia <- prec_dia %>% mutate(., date = gsub(pattern = "X", replacement = "", x = prec_dia$date))
+prec_dia <- prec_dia %>%
+  mutate(
+    .,
+    date = gsub(
+      pattern = "X",
+      replacement = "",
+      x = prec_dia$date
+      )
+    )
 prec_dia$date <- as.Date(x = prec_dia$date,
                          format = "%Y.%m.%d"
-)
+                         )
 
 glimpse(prec_dia)
 ```
@@ -185,8 +193,9 @@ dados_temp_arrumado <- mutate(
     dados_sm_ord,
     day = gsub(pattern = "d",
                replacement = "",
-               x = dados_sm_ord$day)
-  )
+               x = dados_sm_ord$day
+               )
+    )
 dados_temp_arrumado$day <- as.integer(dados_temp_arrumado$day)
 
 glimpse(dados_temp_arrumado)
@@ -334,6 +343,7 @@ data_dados_est_sup <- unite(
 )
 # data_dados_est_sup$date <- as.Date(as.POSIXct(data_dados_est_sup$date, origin = "01-01-2010", tz = "UTC"))
 # data_dados_est_sup$date <- as.Date(as.POSIXct(data_dados_est_sup$date, origin = "01-01-2010", tz = "UTC", format = "%tc"))
+# strptime(dados_h_temp_sm$date, "%Y-%m-%d %H:%M:%S")
 
 # Ajuste temperatura
 pivot_dados_est_sup <- pivot_wider(
@@ -453,7 +463,7 @@ glimpse(periodo_dados_ema)
 
 10. Determine a porcentagem de dados válidos (ou seja, não faltantes) de cada variável para cada EMA. Aproxime os valores para números inteiros.
 
-```{r}
+```{r include=FALSE}
 # Salvando como inteiro
 dados_ema <- dados_rs_08_16
 
@@ -465,7 +475,7 @@ porcentagem_na <- colMeans(is.na(dados_ema))
 
 num_obs <- dados_ema %>% count(site)
 
-# Dados validos para da variável
+# Dados validos para cada variável - loop
 dados_validos_tair <- dados_ema %>%
   group_by(site) %>%
   filter(!is.na(tair)) %>%
@@ -614,15 +624,13 @@ datas_completas_ema_sm <- info_ema_sm %>%
   group_by(dia) %>%
   filter(!is.na(tair)) %>%
   summarise(
-    dias = (length(dia) == 24),
-    tmin = min(tair)
+    dias = (length(dia) == 24)
     ) %>%
-  filter(dias == TRUE)
-# %>%
-#   select(
-#     .,
-#     dia
-#     )
+  filter(dias == TRUE) %>%
+  select(
+    .,
+    dia
+    )
 
 nrow(info_ema_sm)
 glimpse(datas_completas_ema_sm)
@@ -630,29 +638,57 @@ glimpse(tail(datas_completas_ema_sm))
 ```
 
 b.
-```{r}
-dados_h_temp_sm
+```{r include=FALSE}
+separar_date_ema_sm <- dados_h_temp_sm %>%
+  separate(
+  .,
+  col = date,
+  sep = " ",
+  into = c("date", "hour")
+  )
 
-temp_min_ema_sm <- dados_h_temp_sm %>%
+temp_min_ema_sm <- separar_date_ema_sm %>%
   group_by(date) %>%
-  # filter(!is.na(tair)) %>%
-  summarise(
-    tmin = min(tair)
+  filter(!is.na(tair)) %>%
+  mutate(
+    completos = (length(hour) == 24)
     ) %>%
+  filter(completos == TRUE) %>%
   select(
     .,
-    dia
+    date:tair
+  ) %>%
+  slice(.,
+        which.min(tair)
+        )
+temp_min_ema_sm$hour <- as.difftime(
+  temp_min_ema_sm$hour,
+  units = "hours") %>%
+  gsub(
+    pattern = " hours",
+    replacement = ""
     )
 
+freq_htmin <- temp_min_ema_sm %>%
+  arrange(hour) %>%
+  group_by(hour) %>%
+  summarise(
+    .,
+    n = n()
+  ) %>%
+  rename(
+    .,
+    "h_tmin" = hour
+    )
+freq_htmin$h_tmin <- as.integer(freq_htmin$h_tmin)
 
-x <- full_join(
-  datas_completas_ema_sm,
-  dados_rs_08_16,
-  by = "site"
-)
+glimpse(freq_htmin)
+```
 
-
-freq_htmin
+c.
+```{r include=FALSE}
+freq_ocorre_htmin <- freq_htmin %>% arrange(., desc(n))
+glimpse(freq_ocorre_htmin)
 ```
 
 
