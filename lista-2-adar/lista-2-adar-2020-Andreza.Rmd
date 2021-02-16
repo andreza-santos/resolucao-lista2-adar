@@ -8,14 +8,33 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      comment = "",
-                      prompt = FALSE, 
-                      collapse = TRUE 
-                      )
-
+knitr::opts_chunk$set(
+  prompt = FALSE,
+  cache = FALSE,
+  fig.path = "images/",
+  comment = "#>",
+  collapse = TRUE
+)
 library(tidyverse)
 ```
+
+## Critérios de Avaliação
+>
+> **Formato padrão de entrega**: só serão avaliadas as listas entregues no [padrão](https://lhmet.github.io/adar-ebook/exerc%C3%ADcios.html) especificado na instrução da referida lista. Entregas fora do padrão implica em nota mínima (zero). O Rmd deve ser baseado no template fornecido.
+>
+> **Identificação**: Arquivo .Rmd sem autoria acarreta uma penalização de 5%. 
+>
+> **Prática de [R Markdown](https://lhmet.github.io/adar-ebook/r-markdown.html)**: A intenção ao solicitar a entrega em R Markdown é de incentivar a prática do R Markdown nas resoluções das questões, incluindo códigos e texto para discutir ou explicar sua solução. A penalização neste critério é até 5% do valor da questão..
+>
+> **Boas práticas**: Os códigos são avaliados quanto as boas práticas recomendadas no [livro](https://lhmet.github.io/adar-ebook/boas-pr%C3%A1ticas-para-c%C3%B3digos-de-boa-qualidade.html). Penalização de até 5% do valor questão.
+>
+> **Erros de digitação e ortografia**: como há recursos para verificação deste tipo de erro (ver [verificação ortográfica no RStudio](https://lhmet.github.io/adar-ebook/verifica%C3%A7%C3%A3o-ortogr%C3%A1fica.html)) eles são penalizados em até 5% do valor questão.
+>
+> **Reprodutibilidade**: o arquivo .Rmd deve rodar sem problemas e gerar o arquivo html com as respostas das questões.
+>
+> **Organização**: a resolução das questões devem ser feitas no espaço reservado para ela, ou seja, logo abaixo do enunciado da referida questão no arquivo .Rmd.
+>
+> **Adequação**: a lista foi concebida para você aplicar o aprendizado do conteúdo referente ao capítulo da lista. Portanto, a melhor solução é a que aplica as funções pertinentes ao conteúdo daquele capítulo e os pacotes recomendados.
 
 
 1. Crie um vetor com os valores de $e^{x}cos{x}$ para os valores de $x = (3, 3.1, 3.2, ..., 6$).
@@ -23,6 +42,13 @@ library(tidyverse)
 x <- c(seq(from = 3, to = 6, by = 0.1))
 
 (y <- exp(x) * cos(x))
+```
+
+```{r jdt-correcao1, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p1 <- 0
+# nota questão 1
+(nq1 <- 1 - p1)
 ```
 
 - - - 
@@ -42,6 +68,12 @@ a3 <- 1:25
 (q_2b <- rep((2^a3 / a3), len = 24))
 ```
 
+```{r jdt-correcao2, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p2 <- 0 
+# nota questão 1
+(nq2 <- 1 - p2)
+```
 - - -
 
 3. Reproduza a criação do vetor dias da semana (`dds`) mostrado abaixo.
@@ -54,6 +86,17 @@ domingo segunda   terca  quarta  quinta   sexta   sabado
 ```{r}
 (dds <- c(domingo = 1, segunda = 2, terca = 3, quarta = 4, quinta = 5, sexta = 6, sabado = 7))
 
+```
+
+
+> JDT: falta de boas práticas, o código deve ir até 80 caracteres na linha.
+> Use quebra de linha.
+
+```{r jdt-correcao3, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p3 <- 0.05
+# nota questão 
+(nq3 <- 1 - p3)
 ```
 
 - - -
@@ -72,6 +115,15 @@ names(dds)[dds_nums]
 Ao utilizar o sufixo `L` em um dado numérico `(numeric)`, o tipo de dado é definido como inteiro `(integer)`. Assim, em `dds_nums`, o vetor foi definido como `integer`, devido ao uso do `L` em cada elemento numérico. 
 
 `names(dds)[dds_nums]` retorna os "nomes" definidos em `dds` para o vetor `dds_nums`, que compartilha os elementos de `dds`.
+
+>JDT: O aspecto chave era perceber para que serve o conceito de RECICLAGEM.
+
+```{r jdt-correcao4, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p4 <- 0
+# nota questão 
+(nq4 <- 1 - p4)
+```
 
 - - -
 
@@ -100,13 +152,16 @@ set.seed(3)
 (condicao_1 <- c(anos %% 4))
 (condicao_2 <- anos %% 100)
 (condicao_3 <- anos %% 400)
+# procure imprimir somente o que é pedido na questão
 bissextos <- ifelse(
   test = (condicao_1 == 0) & (condicao_2 != 0) | (condicao_3 == 0),
-  yes = "sim",
+  yes = "sim", 
   no = "não"
 )
 bissextos
 ```
+
+> Ano bissexto ímpar? 
 
 b.
 ```{r}
@@ -135,7 +190,14 @@ total_bissextos <- ifelse(
 sum(total_bissextos)
 ```
 
+```{r jdt-correcao5, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p5 <- 0
+# nota questão 1
+(nq5 <- 1 - p5)
+```
 - - -
+
 
 6. Quais códigos para gerar os seguintes dados:
   a.
@@ -194,6 +256,16 @@ e.
 rep(c(5, 4, 3, 2, 1, 2, 3, 4, 5), c(5, 4, 3, 2, 1, 2, 3, 4, 5))
 ```
 
+> JDT: na (e) precisa digitar tudo isso? Como você pode codificar uma sequência de n° inteiros em R?
+
+```{r}
+# penalizacoes
+p6 <- 0.25* 1/5
+# nota questão 
+(nq6 <- 1 - p6)
+```
+
+
 - - - 
 
 7. Usando o mesmo código para solução em todos os itens abaixo, obtenha as seguintes sequências usando os vetores fornecidos.
@@ -243,6 +315,13 @@ seq(along = v3)
 seq(along = v2)
 seq(along = v1)
 seq_along(v0)
+```
+
+```{r jdt-correcao7, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p7 <- 0
+# nota questão 
+(nq7 <- 1 - p7)
 ```
 
 - - -
@@ -334,6 +413,8 @@ box(lwd = 2)
 axis(side = 2, las = 1)
 ```
 
+> Graus Celsius é a unidade de Temperatura (°C). 
+
 a.
 ```{r}
 tmed_est1 <- mean(tar_est1)
@@ -381,11 +462,33 @@ f.
 ```{r}
 dif_tar <- abs(tar_est2 - tar_est1)
 dif_tar[which.max(dif_tar)]
+
+#max(tar_est2 - tar_est1)
+## ou
+# (inds_tar2_maior <- tar_est2 > tar_est1)
+# max_diff_tar <- max(
+#   tar_est2[inds_tar2_maior] - tar_est1[inds_tar2_maior]
+#   #abs(tar_est2[inds_tar2_maior] - tar_est1[inds_tar2_maior])
+# )
+# max_diff_tar
+```
+> Você esqueceu de 'QUANDO A tar_est2 É MAIOR QUE tar_est1 ...'
+
+```{r , echo = FALSE, comment="JDT>"}
+# penalizacoes
+p8 <-   1/10 # e
 ```
 
 g.
 ```{r}
 (h_dif_tar <- c(horas[which.max(dif_tar)]))
+```
+
+> Erro se propaga.
+
+```{r , echo = FALSE, comment="JDT>"}
+# penalizacoes
+p8 <-   1/10 + p8
 ```
 
 h.
@@ -412,8 +515,40 @@ j.
 
 (tar_met3 <- (tar_est2[8] + tar_est2[15] + (2 * tar_est2[22])) / 4)
 ```
+> Falta de boas práticas: de onde saíram os números 8, 10, 15 e 22? colocados na mão? Se tivesse que fazer isso pra 1000 estações faria na mão? Pense como programadora! Eles deveriam ser determinados automaticamente baseado nas informações do enunciado. 
 
-Por padrão, a equação `tar_met2` estima melhor os valores médios diários. Mas o valor da média calculada com a função `mean` é um valor aproximado ao da equação padrão `tar_met2`, o que, também, nos dá uma boa aproximação.
+
+
+
+
+
+
+Por padrão, a equação `tar_met2` estima melhor os valores médios diários.
+
+> Você poderia mostrar isso com seu código. Como você chegou a essa conclusão? que cálculo mental não expresso aqui que você fez para afirmar isso?
+
+```{r}
+dif_abs_mets_est2 <- c(
+  m1 = tar_met1 - tmed_est2,
+  m2 = tar_met2 - tmed_est2,
+  m3 = tar_met3 - tmed_est2
+)
+dif_abs_mets_est2
+dif_abs_mets_est2[which.min(abs(dif_abs_mets_est2))]
+```
+
+
+> Não entendi este comentário abaixo. Acho que você se confundiu. 
+
+Mas o valor da média calculada com a função `mean` é um valor aproximado ao da equação padrão `tar_met2`, o que, também, nos dá uma boa aproximação.
+
+
+```{r , echo = FALSE, comment="JDT>"}
+# penalizacoes
+p8 <-   1/10 * 2/3 + p8
+# nota questão 
+(nq8 <- 1 - p8)
+```
 
 - - - 
 
@@ -450,25 +585,45 @@ h > h_{T_{max}},  & arg = \pi\left ( \frac{14-h}{10+h_{Tmin}} \right )
 $$r = \frac{\sum_{i=1}^{n} (T_{obs}-\bar{T}_{obs})(T_{calc}-\bar{T}_{calc}))}{\sqrt{\sum_{i = 1}^{n} (T_{obs}-\bar{T}_{obs})^{2}(T_{calc}-\bar{T}_{calc})^{2})}}$$
 a.
 ```{r}
-options(digits = 3)
+#options(digits = 3)
 tmed_est1 <- (max(tar_est1) + min(tar_est1)) / 2
 A1 <- (max(tar_est1) - min(tar_est1)) / 2
 
 arg_est1_c1 <- ifelse(test = (horas < hmin_est1),
-                      yes = arg_est1_c1 <- pi * ((horas + 10) / (10 + hmin_est1)),
+                      # atribuição de variável dentro de argumento?
+                      # nunca mostrei o uso do ifelse desta forma
+                      #yes = arg_est1_c1 <- pi * ((horas + 10) / (10 + hmin_est1)),
+                      yes = pi * ((horas + 10) / (10 + hmin_est1)),
                       no = 0
-); arg_est1_c2 <- ifelse(test = (hmin_est1 <= horas & horas < hmax_est1),
-                         yes = arg_est1_c2 <- pi * ((horas - hmin_est1) / (14 - hmin_est1)),
-                         no = arg_est1_c1
-); arg_est1 <- ifelse(test = (horas > hmax_est1),
-                      yes = arg_est1 <- pi * ((14 - horas) / (10 + hmin_est1)),
+                      # uso de ';'? usa quebra de linha como indicado pelas boas práticas
+)
+
+arg_est1_c2 <- ifelse(test = (hmin_est1 <= horas & horas < hmax_est1),
+                      # atribuição de variável dentro de argumento?
+                      # nunca mostrei o uso do ifelse desta forma
+                      #yes = arg_est1_c2 <- pi * ((horas - hmin_est1) / (14 - hmin_est1)),
+                      yes = pi * ((horas - hmin_est1) / (14 - hmin_est1)),
+                      no = arg_est1_c1
+)
+
+arg_est1 <- ifelse(test = (horas > hmax_est1),
+                      #yes = arg_est1 <- pi * ((14 - horas) / (10 + hmin_est1)),
+                      yes = pi * ((14 - horas) / (10 + hmin_est1)),
                       no = arg_est1_c2)
 
 (tcalc_est1 <- ifelse(test =  (hmin_est1 <= horas & horas < hmax_est1),
-                      yes = tcalc_est1 <- tmed_est1 - A1 * cos(arg_est1),
-                      no = tcalc_est1 <- tmed_est1 + A1 * cos(arg_est1)
+                      #yes = tcalc_est1 <- tmed_est1 - A1 * cos(arg_est1),
+                      yes = tmed_est1 - A1 * cos(arg_est1),
+                      #no = tcalc_est1 <- tmed_est1 + A1 * cos(arg_est1)
+                      no =  tmed_est1 + A1 * cos(arg_est1)
 ))
 
+```
+
+
+
+
+```{r}
 tmed_est2 <- (max(tar_est2) + min(tar_est2)) / 2
 A2 <- (max(tar_est2) - min(tar_est2)) / 2
 
@@ -486,6 +641,7 @@ arg_est2_c1 <- ifelse(test = (horas < hmin_est2),
                       yes = tcalc_est2 <- tmed_est2 - A2 * cos(arg_est2),
                       no = tcalc_est2 <- tmed_est2 + A2 * cos(arg_est2)
 ))
+
 ```
 
 b.
@@ -499,4 +655,26 @@ c.
 (r1 <- (mean((tar_est1 - mean(tar_est1)) * (tcalc_est1 - mean(tcalc_est1)))) / sqrt(mean((tar_est1 - mean(tar_est1))^2 * (tcalc_est1 - mean(tcalc_est1))^2)))
 
 (r2 <- (mean((tar_est2 - mean(tar_est2)) * (tcalc_est2 - mean(tcalc_est2)))) / sqrt(mean((tar_est2 - mean(tar_est2))^2 * (tcalc_est2 - mean(tcalc_est2))^2))) 
+```
+> Você precisa enter a diferença entre somatório $\sum_{i=1}^{n}x_{i}$ (`sum(x)` on R) e média $\frac{1}{n}\sum_{i=1}^{n}x_{i}$ (`mean(x)` on R).
+
+> Corrija seu resultado comparando com o resultado de `cor(tar_obs, tar_calc)`.
+
+```{r jdt-correcao9, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p9 <- 1/3
+
+# nota questão 1
+(nq9 <- 1 - p9)
+```
+
+
+
+```{r jdt-nota-final, comment = "JDT>", echo=FALSE}
+# requer conexão de internet
+source("https://gist.githubusercontent.com/lhmet/3ddfc43bcf796c81ecfd9bb93f5f5dc2/raw/b489a6bb4d948472afa5068256b7869a7997e109/aux-funs-list-correction")
+coleta_notas
+# verificação de autoria
+nota <- round((sum(coleta_notas)/length(coleta_notas) * 10), 1)
+message("Nota: ", nota)
 ```
